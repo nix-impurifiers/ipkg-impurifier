@@ -4,7 +4,11 @@ pkgs.stdenv.mkDerivation {
   pname = "ipkg";
   version = "0.99.163";
   src = pkgs.fetchurl {
-    url = "https://mirror2.openwrt.org/sources/ipkg-0.99.163.tar.gz";
+    urls = [
+      "https://people.osmocom.org/laforge/ipaccess-nano3G/GPL/ipkg-0.99.163.tar.gz"
+      "https://mirror2.openwrt.org/sources/ipkg-0.99.163.tar.gz"
+    ];
+    curlOpts = "--connect-timeout 20";
     hash = "sha256-QFdD4boyDtYJXUKomPFIbjrx10XK4r1F3+HYQDpNiZU=";
   };
   nativeBuildInputs = [ pkgs.autoreconfHook ];

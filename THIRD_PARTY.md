@@ -1,7 +1,11 @@
 # Native tooling
 
 The VM fixture builds ipkg 0.99.163, preserved by OpenWrt's source mirror:
-https://mirror2.openwrt.org/sources/ipkg-0.99.163.tar.gz
+https://people.osmocom.org/laforge/ipaccess-nano3G/GPL/ipkg-0.99.163.tar.gz
+
+OpenWrt fallback: https://mirror2.openwrt.org/sources/ipkg-0.99.163.tar.gz
+
+Both archives have the same pinned SHA-256 digest.
 
 ipkg and its bundled BusyBox-derived libbb retain their upstream GPL-2.0-or-later
 copyright and license notices. `nix/tools.nix` applies literal-format fixes for
