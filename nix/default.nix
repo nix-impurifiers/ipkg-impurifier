@@ -159,13 +159,15 @@ let
     };
   makeRuntimeIpk =
     {
-      nixDependency ? "nix",
+      bundledNixStore ? null,
+      bundledNixNotices ? [ ],
+      nixDependency ? (if bundledNixStore == null then "nix" else null),
       pythonDependency ? "python3",
     }:
     let
       payload = pkgs.runCommand "ipkg-impurifier-runtime-payload" { } ''
         mkdir -p $out
-        cp -r ${core.makeRuntimeTree { }}/. $out/
+        cp -r ${core.makeRuntimeTree { inherit bundledNixStore bundledNixNotices; }}/. $out/
         chmod -R u+w $out
         install -m755 ${queue} $out/usr/sbin/ipkg-impurifier-activate
       '';
@@ -174,12 +176,10 @@ let
       name = "ipkg-impurifier";
       version = core.runtimeVersion;
       inherit payload;
+      architecture = if bundledNixStore == null then "all" else architecture;
       description = "Native package intent projected into a Nix profile";
       license = "MIT";
-      dependencies = [
-        nixDependency
-        pythonDependency
-      ];
+      dependencies = lib.optional (nixDependency != null) nixDependency ++ [ pythonDependency ];
       scripts = { inherit postinst; };
     };
 in
@@ -191,6 +191,8 @@ in
     runtimeVersion
     ;
   inherit buildIpk makeIpk makeRuntimeIpk;
+  # Producer-prepared filesystem tree; no relocation or target Nix runtime.
+  makeNativeIpk = args: buildIpk (args // { architecture = args.architecture or architecture; });
   runtimeIpk = makeRuntimeIpk { };
   makeNetIpk = args: makeIpk (args // { offline = false; });
   makeOfflineIpk = args: makeIpk (args // { offline = true; });

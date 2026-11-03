@@ -15,7 +15,23 @@ let
   };
 in
 {
+  bundled-vm =
+    let
+      staticNix = import (coreSrc + "/tests/static-nix.nix") { inherit pkgs; };
+    in
+    import ./vm.nix {
+      inherit pkgs;
+      bundled = true;
+      impurifier = impurifier // {
+        runtimeIpk = impurifier.makeRuntimeIpk {
+          bundledNixStore = "${staticNix}/bin/nix-store";
+          bundledNixNotices = [ "${pkgs.nix.src}/COPYING" ];
+        };
+      };
+      hardwareFixture = import (coreSrc + "/tests/hardware-fixture.nix") { inherit pkgs; };
+    };
   unit = impurifier.unit;
+  native-vm = import ./native-vm.nix { inherit pkgs impurifier; };
   emitter =
     pkgs.runCommand "ipkg-impurifier-contract"
       {
